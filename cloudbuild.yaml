@@ -14,8 +14,10 @@ steps:
         "us-docker.pkg.dev/$PROJECT_ID/gcr.io/$REPO_NAME/$BRANCH_NAME:$COMMIT_SHA",
       ]
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    entrypoint: gcloud
+    entrypoint: bash
     args:
+      - "-c"
+      - "gcloud"
       - "compute"
       - "instances"
       - "update-container"
