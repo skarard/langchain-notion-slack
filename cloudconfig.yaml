@@ -1,0 +1,42 @@
+    secretEnv:
+      [
+        "SLACK_BOT_TOKEN",
+        "SLACK_APP_TOKEN",
+        "OPENAI_API_KEY",
+        "NOTION_TOKEN",
+        "WEAVIATE_TOKEN",
+        "DISCORD_BOT_TOKEN",
+        "DISCORD_CLIENT_ID",
+        "DISCORD_CLIENT_SECRET",
+        "REDIS_USER",
+        "REDIS_PASSWORD",
+      ]
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/SLACK_BOT_TOKEN/versions/latest
+      env: "SLACK_BOT_TOKEN"
+    - versionName: projects/$PROJECT_ID/secrets/SLACK_APP_TOKEN/versions/latest
+      env: "SLACK_APP_TOKEN"
+    - versionName: projects/$PROJECT_ID/secrets/OPENAI_API_KEY/versions/latest
+      env: "OPENAI_API_KEY"
+    - versionName: projects/$PROJECT_ID/secrets/NOTION_TOKEN/versions/latest
+      env: "NOTION_TOKEN"
+    - versionName: projects/$PROJECT_ID/secrets/WEAVIATE_TOKEN/versions/latest
+      env: "WEAVIATE_TOKEN"
+    - versionName: projects/$PROJECT_ID/secrets/DISCORD_BOT_TOKEN/versions/latest
+      env: "DISCORD_BOT_TOKEN"
+    - versionName: projects/$PROJECT_ID/secrets/DISCORD_CLIENT_ID/versions/latest
+      env: "DISCORD_CLIENT_ID"
+    - versionName: projects/$PROJECT_ID/secrets/DISCORD_CLIENT_SECRET/versions/latest
+      env: "DISCORD_CLIENT_SECRET"
+    - versionName: projects/$PROJECT_ID/secrets/REDIS_USER/versions/latest
+      env: "REDIS_USER"
+    - versionName: projects/$PROJECT_ID/secrets/REDIS_PASSWORD/versions/latest
+      env: "REDIS_PASSWORD"
+substitutions:
+  WEAVIATE_SCHEME: "https"
+  WEAVIATE_HOST: "ai-agent-hub-xn0wah4b.weaviate.network"
+  WEAVIATE_INDEX: "TomBilyeu"
+  EXPRESS_PORT: "3000"
+  REDIS_URL: "redis://redis-16035.c259.us-central1-2.gce.cloud.redislabs.com:16035"
