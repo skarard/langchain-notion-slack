@@ -1,1 +1,1 @@
-# langchain-notion-slack
+# langchain-experiments-discord

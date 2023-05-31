@@ -13,7 +13,7 @@ steps:
     entrypoint: bash
     args:
       - "-c"
-      - "gcloud compute instances update-container langchain-notion-slack \
+      - "gcloud compute instances update-container $REPO_NAME-$BRANCH_NAME \
         --zone us-central1-a \
         --container-image us-docker.pkg.dev/$PROJECT_ID/gcr.io/$REPO_NAME/$BRANCH_NAME:$COMMIT_SHA \
         --container-env=SLACK_BOT_TOKEN=$$SLACK_BOT_TOKEN \
