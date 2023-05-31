@@ -9,6 +9,13 @@ class EnvVars {
   WEAVIATE_HOST = "";
   WEAVIATE_TOKEN = "";
   WEAVIATE_INDEX = "";
+  DISCORD_BOT_TOKEN = "";
+  DISCORD_CLIENT_ID = "";
+  DISCORD_CLIENT_SECRET = "";
+  EXPRESS_PORT = 0;
+  REDIS_URL = "";
+  REDIS_USER = "";
+  REDIS_PASSWORD = "";
 }
 
 interface IEnvVars extends EnvVars {}

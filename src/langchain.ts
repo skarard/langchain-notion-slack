@@ -1,60 +1,99 @@
 import { ConversationalRetrievalQAChain } from "langchain/chains";
-import { OpenAI } from "langchain/llms/openai";
 import { WeaviateStore } from "langchain/vectorstores/weaviate";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import weaviate from "weaviate-ts-client";
+import { RedisChatMessageHistory } from "langchain/stores/message/redis";
+
 import config from "./config";
 import { BufferMemory } from "langchain/memory";
-import { PromptTemplate } from "langchain";
 
 import * as fs from "fs";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { weaviateClient } from "./weaviate";
+import { PromptTemplate } from "langchain/prompts";
+import { ChatOpenAI } from "langchain/chat_models/openai";
 
-const memory = new BufferMemory();
+const questionGeneratorTemplate = `Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question. Do not invent any new information, only rephrase the question. Do include personally identifiable details from the chat history like name, age, location, etc.
 
-/* Initialize the LLM to use to answer the question */
-const model = new OpenAI({});
+Chat History:
+{chat_history}
 
-/* Something wrong with the weaviate-ts-client types, so we need to disable */
-const client = weaviate.client({
-  scheme: config.WEAVIATE_SCHEME,
-  host: config.WEAVIATE_HOST,
-  apiKey: new weaviate.ApiKey(config.WEAVIATE_TOKEN),
-});
+Follow Up Input: {question}
+Standalone question:`;
 
-/* Initialize the vector store to use to retrieve the answer */
-const vectorStore = new WeaviateStore(
-  new OpenAIEmbeddings({ openAIApiKey: config.OPENAI_API_KEY }),
-  {
-    client,
-    indexName: config.WEAVIATE_INDEX,
-  }
-);
+const qaTemplate = `The response should use positive, enthusiastic, informal and conversational language to create a warm and approachable tone. It should integrate examples and anecdotes. Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Leave the conversation open to a reply, the user SHOULD initiate saying goodbye. Do NOT start OR end the response with an exclimation. Format the answer with Markdown.
 
-const qaTemplate = `The response should use positive and enthusiastic language an informal and conversational language to create a warm and approachable tone. It should integrate examples and anecdotes. Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
-
+Context:
 {context}
 
 Question: {question}
-Positive and enthusiastic answer:`;
+Helpful answer:`;
 
-/* Create the chain */
-const chain = ConversationalRetrievalQAChain.fromLLM(
-  model,
-  vectorStore.asRetriever(),
-  {
-    qaTemplate,
-  }
-);
+export async function callChain(
+  question: string,
+  { name, userId }: { name: string; userId: string }
+) {
+  /* Initialize the models to use */
+  const fastModel = new ChatOpenAI({
+    modelName: "gpt-3.5-turbo", // modelName: "gpt-3.5-turbo",
+    temperature: 0,
+  });
+  const slowModel = new ChatOpenAI({
+    modelName: "gpt-3.5-turbo", // modelName: "gpt-4",
+    temperature: 0.5,
+  });
 
-export async function callChain(question: string) {
-  return chain.call({ question, chat_history: memory });
+  /* Initialize the vector store to use to retrieve the answer */
+  const vectorStore = new WeaviateStore(
+    new OpenAIEmbeddings({ openAIApiKey: config.OPENAI_API_KEY }),
+    {
+      client: weaviateClient,
+      indexName: config.WEAVIATE_INDEX,
+    }
+  );
+
+  /* Initialize the memory to use to store the chat history */
+  const memory = new BufferMemory({
+    chatHistory: new RedisChatMessageHistory({
+      sessionId: userId,
+      config: {
+        url: config.REDIS_URL,
+        username: config.REDIS_USER,
+        password: config.REDIS_PASSWORD,
+      },
+    }),
+    humanPrefix: name,
+    memoryKey: "chat_history",
+  });
+
+  /* Initialize the chain */
+  const chain = ConversationalRetrievalQAChain.fromLLM(
+    slowModel,
+    vectorStore.asRetriever(),
+    {
+      memory,
+      questionGeneratorChainOptions: {
+        llm: fastModel,
+        template: questionGeneratorTemplate,
+      },
+      qaChainOptions: {
+        type: "stuff",
+        prompt: new PromptTemplate({
+          template: qaTemplate,
+          inputVariables: ["context", "question"],
+        }),
+      },
+    }
+  );
+
+  return chain.call({ question });
 }
 
 export async function initData() {
   console.log("Init Data");
+
   /* Load in the file we want to do question answering over */
   const text = fs.readFileSync("TB.data.md", "utf8");
+
   /* Split the text into chunks */
   const textSplitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000 });
   const docs = await textSplitter.createDocuments([text]);
@@ -65,7 +104,7 @@ export async function initData() {
     docs,
     new OpenAIEmbeddings({ openAIApiKey: config.OPENAI_API_KEY }),
     {
-      client,
+      client: weaviateClient,
       indexName: config.WEAVIATE_INDEX,
     }
   ).then((res) => console.log("Init Vector Store"));
