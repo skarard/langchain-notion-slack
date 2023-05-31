@@ -20,7 +20,7 @@ Chat History:
 Follow Up Input: {question}
 Standalone question:`;
 
-const qaTemplate = `The response should use positive, enthusiastic, informal and conversational language to create a warm and approachable tone. It should integrate examples and anecdotes. Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Leave the conversation open to a reply, the user SHOULD initiate saying goodbye. Do NOT start OR end the response with an exclimation. Format the answer with Markdown.
+const qaTemplate = `The response should use positive, enthusiastic, informal and conversational language to create a warm and approachable tone. It should integrate examples and anecdotes. Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Leave the conversation open to a reply, the user SHOULD initiate saying goodbye. Do NOT start OR end the response with an exclimation. Format the answer with
 
 Context:
 {context}
