@@ -5,7 +5,7 @@ COPY . .
 RUN npm ci
 RUN npm run build
 RUN rm -rf node_modules
-RUN npm ci --production
+RUN npm ci --omit=dev
 
 # Production image
 FROM node AS runner

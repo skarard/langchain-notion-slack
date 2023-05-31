@@ -4,11 +4,23 @@ steps:
       [
         "build",
         "-t",
-        "us-docker.pkg.dev/$PROJECT_ID/gcr.io/$REPO_NAME/$BRANCH_NAME",
+        "us-docker.pkg.dev/$PROJECT_ID/gcr.io/$REPO_NAME/$BRANCH_NAME:$COMMIT_SHA",
         ".",
       ]
   - name: "gcr.io/cloud-builders/docker"
     args:
-      ["push", "us-docker.pkg.dev/$PROJECT_ID/gcr.io/$REPO_NAME/$BRANCH_NAME"]
-images:
-  - "us-docker.pkg.dev/$PROJECT_ID/gcr.io/$REPO_NAME/$BRANCH_NAME"
+      [
+        "push",
+        "us-docker.pkg.dev/$PROJECT_ID/gcr.io/$REPO_NAME/$BRANCH_NAME:$COMMIT_SHA",
+      ]
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "compute"
+      - "instances"
+      - "update-container"
+      - "langchain-notion-slack-template-1"
+      - "--zone"
+      - "us-central1-a"
+      - "--container-image"
+      - "us-docker.pkg.dev/$PROJECT_ID/gcr.io/$REPO_NAME/$BRANCH_NAME:$COMMIT_SHA"
