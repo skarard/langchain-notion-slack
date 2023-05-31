@@ -40,3 +40,5 @@ substitutions:
   WEAVIATE_INDEX: "TomBilyeu"
   EXPRESS_PORT: "3000"
   REDIS_URL: "redis://redis-16035.c259.us-central1-2.gce.cloud.redislabs.com:16035"
+
+name: us-docker.pkg.dev/skarard/gcr.io/langchain-notion-slack/discord

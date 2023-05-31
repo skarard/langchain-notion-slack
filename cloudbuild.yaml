@@ -24,8 +24,21 @@ steps:
       - "us-central1-a"
       - "--container-image"
       - "us-docker.pkg.dev/$PROJECT_ID/gcr.io/$REPO_NAME/$BRANCH_NAME:$COMMIT_SHA"
-      - "--container-env-file='.env'"
-      - "--container-env=[SLACK_BOT_TOKEN=$$SLACK_BOT_TOKEN, SLACK_APP_TOKEN=$$SLACK_APP_TOKEN, OPENAI_API_KEY=$$OPENAI_API_KEY, NOTION_TOKEN=$$NOTION_TOKEN, WEAVIATE_TOKEN=$$WEAVIATE_TOKEN, DISCORD_BOT_TOKEN=$$DISCORD_BOT_TOKEN, DISCORD_CLIENT_ID=$$DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET=$$DISCORD_CLIENT_SECRET, REDIS_USER=$$REDIS_USER, REDIS_PASSWORD=$$REDIS_PASSWORD,"
+      - "--container-env=SLACK_BOT_TOKEN=$$SLACK_BOT_TOKEN"
+      - "--container-env=SLACK_APP_TOKEN=$$SLACK_APP_TOKEN"
+      - "--container-env=OPENAI_API_KEY=$$OPENAI_API_KEY"
+      - "--container-env=NOTION_TOKEN=$$NOTION_TOKEN"
+      - "--container-env=WEAVIATE_TOKEN=$$WEAVIATE_TOKEN"
+      - "--container-env=WEAVIATE_SCHEME=https"
+      - "--container-env=WEAVIATE_HOST=ai-agent-hub-xn0wah4b.weaviate.network"
+      - "--container-env=WEAVIATE_INDEX=TomBilyeu"
+      - "--container-env=DISCORD_BOT_TOKEN=$$DISCORD_BOT_TOKEN"
+      - "--container-env=DISCORD_CLIENT_ID=$$DISCORD_CLIENT_ID"
+      - "--container-env=DISCORD_CLIENT_SECRET=$$DISCORD_CLIENT_SECRET"
+      - "--container-env=REDIS_USER=$$REDIS_USER"
+      - "--container-env=REDIS_PASSWORD=$$REDIS_PASSWORD"
+      - "--container-env=REDIS_URL=redis://redis-16035.c259.us-central1-2.gce.cloud.redislabs.com:16035"
+      - "--container-env=EXPRESS_PORT=3000"
     secretEnv:
       [
         "SLACK_BOT_TOKEN",
