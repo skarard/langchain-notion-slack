@@ -4,8 +4,10 @@ steps:
       [
         "build",
         "-t",
-        "$LOCATION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$BRANCH_NAME-$BUILD_ID",
+        "gcr.io/$PROJECT_ID/$REPO_NAME/$BRANCH_NAME-$BUILD_ID",
         ".",
       ]
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/$PROJECT_ID/$REPO_NAME/$BRANCH_NAME-$BUILD_ID"]
 images:
-  - "$LOCATION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$BRANCH_NAME-$BUILD_ID"
+  - "gcr.io/$PROJECT_ID/$REPO_NAME/$BRANCH_NAME-$BUILD_ID"
