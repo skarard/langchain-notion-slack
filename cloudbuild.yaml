@@ -22,7 +22,7 @@ steps:
         --container-env=NOTION_TOKEN=$$NOTION_TOKEN \
         --container-env=WEAVIATE_TOKEN=$$WEAVIATE_TOKEN \
         --container-env=WEAVIATE_SCHEME=https \
-        --container-env=WEAVIATE_HOST=ai-agent-hub-xn0wah4b.weaviate.network \
+        --container-env=WEAVIATE_HOST=langchain-experiments-avrnpode.weaviate.network \
         --container-env=WEAVIATE_INDEX=TomBilyeu \
         --container-env=DISCORD_BOT_TOKEN=$$DISCORD_BOT_TOKEN \
         --container-env=DISCORD_CLIENT_ID=$$DISCORD_CLIENT_ID \
