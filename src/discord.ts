@@ -39,6 +39,10 @@ discordClient.on(Events.MessageCreate, async function (message) {
     const [mcQuestionRaw, mcChoicesRaw, mcAnswerIndexRaw] =
       result.split("--- ea07b3b9 ---");
 
+    // If any of the parts are missing, skip this result
+    if (!mcQuestionRaw || !mcChoicesRaw || !mcAnswerIndexRaw) return;
+
+    // Parse the multiple choice question and choices
     const mcQuestion = JSON.parse(mcQuestionRaw);
     const mcChoices = JSON.parse(mcChoicesRaw) as string[];
     const mcAnswerIndex = parseInt(mcAnswerIndexRaw);
