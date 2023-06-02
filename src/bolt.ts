@@ -13,9 +13,6 @@ boltApp.message(async ({ message, say }) => {
     (message.subtype === undefined || message.subtype === "bot_message") &&
     message.text
   ) {
-    await callChain(message.text, {
-      name: message.user as string,
-      userId: message.user as string,
-    }).then((answer) => say(answer));
+    await callChain(message.text).then((answer) => say(answer));
   }
 });
