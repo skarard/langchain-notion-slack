@@ -11,14 +11,14 @@ expressApp.get("/", async (request, response) => {
         "https://discord.com/api/oauth2/token",
         {
           method: "POST",
-          data: JSON.stringify({
+          data: {
             client_id: config.DISCORD_CLIENT_ID,
             client_secret: config.DISCORD_CLIENT_SECRET,
             code,
             grant_type: "authorization_code",
             redirect_uri: `http://localhost:${config.EXPRESS_PORT}`,
             scope: "messages.read bot identify dm_channels.read guilds",
-          }),
+          },
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
           },
