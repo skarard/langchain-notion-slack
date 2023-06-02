@@ -14,8 +14,8 @@ const qaTemplate = `Use the following pieces of context to create a multiple cho
 
 {context}
 
-Multiple choice question and choices in the following format:
-"What year was the first Moon landing?" --- ea07b3b9 --- ["1969", "1970", "1971", "1972"] --- ea07b3b9 --- 0
+Multiple choice question and choices USE ONLY the following format:
+"What year was the first Moon landing?" --- ea07b3b9 --- ["1969", "1970", "1971", "1972"] --- ea07b3b9 --- 0\n
 
 Multiple choice question: {question}
 RESULT:`;
