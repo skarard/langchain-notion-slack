@@ -36,77 +36,83 @@ discordClient.on(Events.MessageCreate, async function (message) {
 
   console.log(mcResults);
 
-  let success = true;
+  let failure = false;
 
-  await Promise.all(
-    mcResults.split("\n").map((result) =>
-      (async () => {
-        if (!result) return;
+  const embeds = (
+    await Promise.all(
+      mcResults.split("\n").map((result) =>
+        (async () => {
+          if (!result) return;
 
-        // Extract a multiple choice question and choices from the chain
-        const [mcQuestionRaw, mcChoicesRaw, mcAnswerIndexRaw] =
-          result.split("--- ea07b3b9 ---");
+          // Extract a multiple choice question and choices from the chain
+          const [mcQuestionRaw, mcChoicesRaw, mcAnswerIndexRaw] =
+            result.split("--- ea07b3b9 ---");
 
-        // If any of the parts are missing, skip this result (assume it's an error)
-        if (!mcQuestionRaw || !mcChoicesRaw || !mcAnswerIndexRaw) {
-          success = false;
-          message.reactions.removeAll().then(() => message.react("❌"));
-          return message.reply(result);
-        }
+          let mcQuestion: string;
+          let mcChoices: string[];
+          let mcAnswerIndex: number;
 
-        // Parse the multiple choice question and choices
-        const mcQuestion = JSON.parse(mcQuestionRaw) as string;
-        const mcChoices = JSON.parse(mcChoicesRaw) as string[];
-        const mcAnswerIndex = parseInt(mcAnswerIndexRaw);
+          // Parse the multiple choice question and choices
+          try {
+            mcQuestion = JSON.parse(mcQuestionRaw) as string;
+            mcChoices = JSON.parse(mcChoicesRaw) as string[];
+            mcAnswerIndex = parseInt(mcAnswerIndexRaw);
+          } catch (e) {
+            failure = true;
+            return;
+          }
 
-        // shuffle the choices
-        const shuffledChoices = mcChoices
-          .map((v) => ({ v, sort: Math.random() }))
-          .sort((a, b) => a.sort - b.sort)
-          .map(({ v }) => v);
-        // find the index of the correct answer in the shuffled choices
-        const shuffledAnswerIndex = shuffledChoices.indexOf(
-          mcChoices[mcAnswerIndex]
-        );
+          // Shuffle the choices
+          const shuffledChoices = mcChoices
+            .map((v) => ({ v, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ v }) => v);
 
-        // Generate salt and hash
-        const salt = Math.floor(Math.random() * 2 ** 32)
-          .toString(16)
-          .padStart(8, "0");
-        const hash = crypto
-          .createHash("sha-256")
-          .update(salt + answers[shuffledAnswerIndex])
-          .digest("hex")
-          .slice(0, 8);
+          // Find the index of the correct answer in the shuffled choices
+          const shuffledAnswerIndex = shuffledChoices.indexOf(
+            mcChoices[mcAnswerIndex]
+          );
 
-        // Generate embed
-        const embed = new EmbedBuilder()
-          .setColor(0x0099ff)
-          .addFields({
-            name: "Question",
-            value: mcQuestion,
-          })
-          .addFields({
-            name: "Choices",
-            value: shuffledChoices
-              .map((choice, i) => `${answers[i]} ${choice}`)
-              .join("\n"),
-          })
-          .setFooter({ text: salt + ":" + hash });
+          // Generate salt and hash
+          const salt = Math.floor(Math.random() * 2 ** 32)
+            .toString(16)
+            .padStart(8, "0");
+          const hash = crypto
+            .createHash("sha-256")
+            .update(salt + answers[shuffledAnswerIndex])
+            .digest("hex")
+            .slice(0, 8);
 
-        // Send embed
-        message.channel.send({ embeds: [embed] });
-      })()
+          // Generate embed
+          return new EmbedBuilder()
+            .setColor(0x0099ff)
+            .addFields({
+              name: "Question",
+              value: mcQuestion,
+            })
+            .addFields({
+              name: "Choices",
+              value: shuffledChoices
+                .map((choice, i) => `${answers[i]} ${choice}`)
+                .join("\n"),
+            })
+            .setFooter({ text: salt + ":" + hash });
+        })()
+      )
     )
-  );
+  ).filter((embed) => !!embed) as EmbedBuilder[];
 
-  if (success) {
-    message.reactions.removeAll().then(() => message.react("✅"));
+  if (failure) {
+    message.reactions.removeAll().then(() => message.react("❌"));
+    message.reply("Sorry, the was an error creating the question.");
+    return;
   }
+
+  message.reactions.removeAll().then(() => message.react("✅"));
+  embeds.forEach((embed) => message.channel.send({ embeds: [embed] }));
 });
 
 // Reaction events
-
 discordClient.on(Events.MessageReactionAdd, async function (reaction, user) {
   if (user.bot) return;
   if (reaction.partial) await reaction.fetch().catch(console.error);
