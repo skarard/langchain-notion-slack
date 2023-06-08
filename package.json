@@ -1,5 +1,5 @@
 {
-  "name": "langchain-experiments-discord",
+  "name": "langchain-experiments-discord-notion-multichoice",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 0",
     "dev": "nodemon src/index.ts",
     "build": "tsc",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "discord:deploy": "ts-node src/discord/deploy.ts"
   },
   "keywords": [],
   "author": "",

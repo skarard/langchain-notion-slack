@@ -7,7 +7,7 @@ expressApp.get("/", async (request, response) => {
   const { code } = request.query;
   if (code) {
     try {
-      const tokenResponseData = await axios(
+      const tokenResponse = await axios(
         "https://discord.com/api/oauth2/token",
         {
           method: "POST",
@@ -17,7 +17,7 @@ expressApp.get("/", async (request, response) => {
             code,
             grant_type: "authorization_code",
             redirect_uri: `http://localhost:${config.EXPRESS_PORT}`,
-            scope: "messages.read bot identify dm_channels.read guilds",
+            scope: "bot identify guilds application.commands",
           },
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -25,12 +25,12 @@ expressApp.get("/", async (request, response) => {
         }
       );
 
-      const oauthData = tokenResponseData.data;
-      console.log(oauthData);
+      return response.json({ code, tokenResponseData: tokenResponse.data });
     } catch (error) {
       console.error(error);
+      return response.json({ code, error: "no token response data" });
     }
   }
 
-  return response.sendFile("index.html", { root: "." });
+  return response.json({ code, error: "no code" });
 });

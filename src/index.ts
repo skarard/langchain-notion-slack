@@ -10,7 +10,7 @@ import config from "./config";
   discordClient
     .login(config.DISCORD_BOT_TOKEN)
     .then((res) => console.log("[server] Discord is running"));
-  // expressApp.listen(config.EXPRESS_PORT, () =>
-  //   console.log("[server] Express is running")
-  // );
+  expressApp.listen(config.EXPRESS_PORT, () =>
+    console.log("[server] Express is running")
+  );
 })();
