@@ -1,11 +1,12 @@
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
 import { InteractionCommand } from ".";
 import {
-  NotionWebLoader,
-  NotionWebObject,
-} from "langchain/document_loaders/web/notionweb";
+  NotionAPILoader,
+  NotionAPIObject,
+} from "langchain/document_loaders/web/notionapi";
 import config from "../../config";
 import { Client } from "@notionhq/client";
+import { addData } from "../../langchain";
 
 const command: InteractionCommand = {
   data: new SlashCommandBuilder()
@@ -14,10 +15,9 @@ const command: InteractionCommand = {
     .addStringOption((option) =>
       option
         .setName("type")
-        .setDescription("The notion type: block, page, database")
+        .setDescription("The notion type: page OR database")
         .setRequired(true)
         .setChoices(
-          { name: "block", value: "block" },
           { name: "page", value: "page" },
           { name: "database", value: "database" }
         )
@@ -36,7 +36,7 @@ const command: InteractionCommand = {
 
     const type = interaction.options.data.find(
       (option) => option.name === "type"
-    )?.value as NotionWebObject;
+    )?.value as NotionAPIObject;
 
     if (!id) {
       await interaction.reply({
@@ -53,22 +53,23 @@ const command: InteractionCommand = {
 
     const notion = new Client({ auth: config.NOTION_TOKEN });
 
-    const loader = new NotionWebLoader({
+    const loader = new NotionAPILoader({
       client: notion,
       id,
       type,
     });
 
-    const docs = await loader.load().catch(async (err) => {
-      console.log(err);
+    const docs = await loader.load().catch(console.log);
+
+    if (docs === undefined) {
       await interaction.followUp({
         content: `Invalid object with id ${id}...`,
         ephemeral: true,
       });
-      return undefined;
-    });
+      return;
+    }
 
-    console.dir({ docs }, { depth: "infinity" });
+    await addData(docs);
 
     await interaction.followUp({
       content: `Imported id ${id}...`,

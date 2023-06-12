@@ -9,6 +9,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { weaviateClient } from "./weaviate";
 import { PromptTemplate } from "langchain/prompts";
 import { ChatOpenAI } from "langchain/chat_models/openai";
+import { Document } from "langchain/document";
 
 const qaTemplate = `Use the following pieces of context to create a multiple choice question base on the details below with 1 correct answer and 3 incorrect choices. The choices are in an array, include the index of the correct answer. The question, choices array and answer index are seperated by "--- ea07b3b9 ---". For more than on multiple choice question, seperate each question with a new line.
 
@@ -31,7 +32,7 @@ export async function callChain(question: string) {
   const vectorStore = new WeaviateStore(
     new OpenAIEmbeddings({ openAIApiKey: config.OPENAI_API_KEY }),
     {
-      client: weaviateClient,
+      client: weaviateClient as any,
       indexName: config.WEAVIATE_INDEX,
     }
   );
@@ -45,6 +46,18 @@ export async function callChain(question: string) {
   });
 
   return chain.call({ query: question });
+}
+
+export async function addData(docs: Document[]) {
+  /* Create the vectorstore */
+  await WeaviateStore.fromDocuments(
+    docs,
+    new OpenAIEmbeddings({ openAIApiKey: config.OPENAI_API_KEY }),
+    {
+      client: weaviateClient as any,
+      indexName: config.WEAVIATE_INDEX,
+    }
+  ).then((res) => console.log("Init Vector Store"));
 }
 
 export async function initData() {
@@ -63,7 +76,7 @@ export async function initData() {
     docs,
     new OpenAIEmbeddings({ openAIApiKey: config.OPENAI_API_KEY }),
     {
-      client: weaviateClient,
+      client: weaviateClient as any,
       indexName: config.WEAVIATE_INDEX,
     }
   ).then((res) => console.log("Init Vector Store"));
