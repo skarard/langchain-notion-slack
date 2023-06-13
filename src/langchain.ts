@@ -13,8 +13,8 @@ import * as fs from "fs";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { weaviateClient } from "./weaviate";
 import { PromptTemplate } from "langchain/prompts";
-import { ChatOpenAI } from "langchain/chat_models/openai";
 import { Document } from "langchain/document";
+import { OpenAI } from "langchain/llms/openai";
 
 const multiChoiceQATemplate = `Use the following pieces of context to create a multiple choice question base on the details below with 1 correct answer and 3 incorrect choices. The choices are in an array, include the index of the correct answer. The question, choices array and answer index are seperated by "--- ea07b3b9 ---". For more than on multiple choice question, seperate each question with a new line.
 
@@ -28,7 +28,7 @@ RESULT:`;
 
 export async function multiChoiceCallChain(question: string) {
   /* Initialize the models to use */
-  const model = new ChatOpenAI({
+  const model = new OpenAI({
     modelName: "gpt-3.5-turbo", // modelName: "gpt-3.5-turbo",
     temperature: 0,
   });
@@ -86,12 +86,12 @@ export async function callChain(
   { name, userId }: { name: string; userId: string }
 ) {
   /* Initialize the models to use */
-  const fastModel = new ChatOpenAI({
-    modelName: "gpt-3.5-turbo", // modelName: "gpt-3.5-turbo",
+  const fastModel = new OpenAI({
+    modelName: "text-davinci-003", // modelName: "gpt-3.5-turbo", "text-davinci-003"
     temperature: 0,
   });
-  const slowModel = new ChatOpenAI({
-    modelName: "gpt-3.5-turbo", // modelName: "gpt-4",
+  const slowModel = new OpenAI({
+    modelName: "text-davinci-003", // modelName: "gpt-4"
     temperature: 0.5,
   });
 
@@ -101,7 +101,7 @@ export async function callChain(
     {
       client: weaviateClient as any,
       indexName: config.WEAVIATE_INDEX,
-      metadataKeys: ["notionId", "metadata_url", "properties_title"],
+      metadataKeys: ["notionId", "url", "properties_title"],
     }
   );
 

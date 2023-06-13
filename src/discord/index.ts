@@ -27,25 +27,25 @@ const commands = new Discord.Collection<string, InteractionCommand>(
 );
 
 discordClient.on(Events.InteractionCreate, async (interaction) => {
-  // if (!interaction.isChatInputCommand()) return;
-  // const command = commands.get(interaction.commandName);
-  // if (!command) {
-  //   console.error(`No command matching ${interaction.commandName} was found.`);
-  //   return;
-  // }
-  // await command.execute(interaction).catch(async (e) => {
-  //   console.error(e);
-  //   if (interaction.replied || interaction.deferred) {
-  //     return await interaction.followUp({
-  //       content: "There was an error while executing this command!",
-  //       ephemeral: true,
-  //     });
-  //   }
-  //   await interaction.reply({
-  //     content: "There was an error while executing this command!",
-  //     ephemeral: true,
-  //   });
-  // });
+  if (!interaction.isChatInputCommand()) return;
+  const command = commands.get(interaction.commandName);
+  if (!command) {
+    console.error(`No command matching ${interaction.commandName} was found.`);
+    return;
+  }
+  await command.execute(interaction).catch(async (e) => {
+    console.error(e);
+    if (interaction.replied || interaction.deferred) {
+      return await interaction.followUp({
+        content: "There was an error while executing this command!",
+        ephemeral: true,
+      });
+    }
+    await interaction.reply({
+      content: "There was an error while executing this command!",
+      ephemeral: true,
+    });
+  });
 });
 
 discordClient.on(Events.MessageCreate, async function (message) {
