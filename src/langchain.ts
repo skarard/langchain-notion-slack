@@ -1,5 +1,6 @@
 import {
   ConversationalRetrievalQAChain,
+  LLMChain,
   RetrievalQAChain,
 } from "langchain/chains";
 import { WeaviateStore } from "langchain/vectorstores/weaviate";
@@ -52,6 +53,8 @@ export async function multiChoiceCallChain(question: string) {
 
   return chain.call({ query: question });
 }
+
+export async function toStructuredData(docs: string) {}
 
 export async function addData(docs: Document[]) {
   /* Create the vectorstore */
@@ -162,4 +165,41 @@ export async function initData() {
       indexName: config.WEAVIATE_INDEX,
     }
   ).then((res) => console.log("Init Vector Store"));
+}
+
+export async function callParseChain(doc: Document) {
+  /* Initialize the models to use */
+  const model = new OpenAI({
+    modelName: "text-davinci-003", // modelName: "gpt-3.5-turbo",
+    temperature: 0,
+  });
+  /* Template to use to parse the unstructured data into structured data with columns: name, field, social_count, professional_count, score */
+  const template = `Parse the following context into structured data with columns: name, professional field, specalisation, reference url, type (social, author, professional)
+    If there is not relavent information for a column, leave it blank. If there is more than one relavent information for a column, add a new row for each relavent information.
+    Do not invent any new information, only parse the context. Only response with the data, the schema is not needed in the response. 
+    schema: | name | professional field | specalisation | reference url | type |
+    
+    {context}
+    
+    RESPONSE:`;
+
+  /* Initialize the chain */
+  const prompt = new PromptTemplate({
+    template,
+    inputVariables: ["context"],
+  });
+  const chain = new LLMChain({ llm: model, prompt });
+
+  console.log(
+    "doc length",
+    doc.pageContent.length,
+    "doc",
+    doc.pageContent.slice(0, 100)
+  );
+
+  return chain.call({
+    context: `data: ${doc.pageContent}\n\nmetadata: ${JSON.stringify(
+      doc.metadata
+    )}`,
+  });
 }

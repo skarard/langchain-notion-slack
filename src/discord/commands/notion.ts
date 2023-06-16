@@ -6,12 +6,12 @@ import {
 } from "langchain/document_loaders/web/notionapi";
 import config from "../../config";
 import { Client } from "@notionhq/client";
-import { addData } from "../../langchain";
+import { addData, callParseChain } from "../../langchain";
 
 const command: InteractionCommand = {
   data: new SlashCommandBuilder()
-    .setName("notion-add")
-    .setDescription("Adds a notion database to the bot")
+    .setName("add-data")
+    .setDescription("Parses notion data with a view to add it to a database")
     .addStringOption((option) =>
       option
         .setName("type")
@@ -69,10 +69,19 @@ const command: InteractionCommand = {
       return;
     }
 
-    await addData(docs);
+    // await addData(docs);
+    for (const doc of docs) {
+      const result = await callParseChain(doc);
+
+      if (result.text)
+        await interaction.followUp({
+          content: result.text,
+          ephemeral: true,
+        });
+    }
 
     await interaction.followUp({
-      content: `Imported id ${id}...`,
+      content: `Completed extracting data from ${id}...`,
       ephemeral: true,
     });
   },
