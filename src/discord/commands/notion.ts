@@ -2,7 +2,7 @@ import { CommandInteraction, SlashCommandBuilder } from "discord.js";
 import { InteractionCommand } from ".";
 import {
   NotionAPILoader,
-  NotionAPIObject,
+  NotionAPIType,
 } from "langchain/document_loaders/web/notionapi";
 import config from "../../config";
 import { Client } from "@notionhq/client";
@@ -36,7 +36,7 @@ const command: InteractionCommand = {
 
     const type = interaction.options.data.find(
       (option) => option.name === "type"
-    )?.value as NotionAPIObject;
+    )?.value as NotionAPIType;
 
     if (!id) {
       await interaction.reply({
